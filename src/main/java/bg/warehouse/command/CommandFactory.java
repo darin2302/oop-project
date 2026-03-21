@@ -18,6 +18,7 @@ public class CommandFactory {
         commands.put("save as", new SaveAsCommand());
         commands.put("print", new PrintCommand());
         commands.put("add", new AddCommand());
+        commands.put("remove", new RemoveCommand());
         commands.put("help", new HelpCommand());
         commands.put("exit", new ExitCommand());
     }
