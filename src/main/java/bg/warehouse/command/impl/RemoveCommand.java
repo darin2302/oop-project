@@ -2,9 +2,11 @@ package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.model.Batch;
+import bg.warehouse.model.LogEntry;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.session.WarehouseSession;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +54,27 @@ public class RemoveCommand implements Command {
             return;
         }
 
+        double totalAvailable = matching.stream()
+                .mapToDouble(Batch::getQuantity)
+                .sum();
+
+        if (quantity > totalAvailable) {
+            System.out.println("Not enough stock. Available: " + String.format("%.2f", totalAvailable)
+                    + " " + matching.get(0).getUnit());
+            System.out.println("Batches:");
+            for (Batch b : matching) {
+                System.out.println("  [" + b.getLocation() + ", expiry: " + b.getExpiryDate()
+                        + "]: " + String.format("%.2f", b.getQuantity()) + " " + b.getUnit());
+            }
+            System.out.print("Do you want to remove all available stock? (yes/no): ");
+            String answer = scanner.nextLine().trim().toLowerCase();
+            if (!answer.equals("yes")) {
+                System.out.println("Removal cancelled.");
+                return;
+            }
+            quantity = totalAvailable;
+        }
+
         double remaining = quantity;
         List<Batch> toRemove = new ArrayList<>();
 
@@ -65,6 +88,11 @@ public class RemoveCommand implements Command {
             System.out.println("Removing from batch [" + batch.getLocation()
                     + ", expiry: " + batch.getExpiryDate() + "]: "
                     + String.format("%.2f", take) + " " + batch.getUnit());
+
+            LogEntry logEntry = new LogEntry(
+                    LocalDateTime.now(), "REMOVE", productName, take,
+                    batch.getLocation().toString());
+            warehouse.getLogEntries().add(logEntry);
 
             if (batch.getQuantity() <= 0) {
                 toRemove.add(batch);
