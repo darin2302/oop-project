@@ -3,17 +3,17 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.model.*;
 import bg.warehouse.service.LocationAllocator;
+import bg.warehouse.service.LogHelper;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.Constants;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class AddCommand implements Command {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final LocationAllocator locationAllocator = new LocationAllocator();
 
     @Override
@@ -21,7 +21,7 @@ public class AddCommand implements Command {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println("No file is currently open. Use 'open <file>' first.");
+            System.out.println(Constants.NO_FILE_OPEN);
             return;
         }
 
@@ -58,7 +58,7 @@ public class AddCommand implements Command {
         String expiryStr = prompt(scanner, "Expiry date (yyyy-MM-dd): ");
         LocalDate expiryDate;
         try {
-            expiryDate = LocalDate.parse(expiryStr, DATE_FORMAT);
+            expiryDate = LocalDate.parse(expiryStr, Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
             System.out.println("Invalid date format. Use yyyy-MM-dd.");
             return;
@@ -67,7 +67,7 @@ public class AddCommand implements Command {
         String entryStr = prompt(scanner, "Entry date (yyyy-MM-dd): ");
         LocalDate entryDate;
         try {
-            entryDate = LocalDate.parse(entryStr, DATE_FORMAT);
+            entryDate = LocalDate.parse(entryStr, Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
             System.out.println("Invalid date format. Use yyyy-MM-dd.");
             return;
@@ -83,10 +83,7 @@ public class AddCommand implements Command {
                 existing.setQuantity(existing.getQuantity() + quantity);
                 System.out.println("Merged with existing batch at location " + existing.getLocation() + ".");
 
-                LogEntry logEntry = new LogEntry(
-                        java.time.LocalDateTime.now(), "ADD", name, quantity,
-                        existing.getLocation().toString());
-                warehouse.getLogEntries().add(logEntry);
+                LogHelper.log(warehouse, LogAction.ADD, name, quantity, existing.getLocation());
                 return;
             }
         }
@@ -111,10 +108,7 @@ public class AddCommand implements Command {
         Batch batch = product.toBatch(location);
         warehouse.getBatches().add(batch);
 
-        LogEntry logEntry = new LogEntry(
-                java.time.LocalDateTime.now(), "ADD", name, quantity,
-                location.toString());
-        warehouse.getLogEntries().add(logEntry);
+        LogHelper.log(warehouse, LogAction.ADD, name, quantity, location);
 
         System.out.println("Product added at location " + location + ".");
     }
