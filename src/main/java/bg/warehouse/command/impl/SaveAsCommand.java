@@ -2,6 +2,8 @@ package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.Constants;
+import bg.warehouse.util.FileUtils;
 import bg.warehouse.xml.XmlFileHandler;
 
 import java.util.Scanner;
@@ -15,7 +17,7 @@ public class SaveAsCommand implements Command {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println("No file is currently open. Use 'open <file>' first.");
+            System.out.println(Constants.NO_FILE_OPEN);
             return;
         }
 
@@ -29,14 +31,7 @@ public class SaveAsCommand implements Command {
         try {
             xmlHandler.save(session.getWarehouse(), newPath);
             session.setFilePath(newPath);
-
-            String fileName = newPath.contains("\\")
-                    ? newPath.substring(newPath.lastIndexOf('\\') + 1)
-                    : newPath.contains("/")
-                    ? newPath.substring(newPath.lastIndexOf('/') + 1)
-                    : newPath;
-
-            System.out.println("Successfully saved " + fileName);
+            System.out.println("Successfully saved " + FileUtils.getFileName(newPath));
         } catch (Exception e) {
             System.out.println("Error saving file: " + e.getMessage());
         }
