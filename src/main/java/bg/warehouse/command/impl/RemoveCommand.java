@@ -5,8 +5,11 @@ import bg.warehouse.model.Batch;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.session.WarehouseSession;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class RemoveCommand implements Command {
 
@@ -28,26 +31,49 @@ public class RemoveCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(args[2]);
+            if (quantity <= 0) {
+                System.out.println("Quantity must be positive.");
+                return;
+            }
         } catch (NumberFormatException e) {
             System.out.println("Invalid quantity.");
             return;
         }
 
         Warehouse warehouse = session.getWarehouse();
-        List<Batch> batches = warehouse.getBatches();
 
-        for (Batch batch : batches) {
-            if (batch.getProductName().equalsIgnoreCase(productName)) {
-                batch.setQuantity(batch.getQuantity() - quantity);
-                System.out.println("Removing from batch [" + batch.getLocation()
-                        + ", expiry: " + batch.getExpiryDate() + "]: "
-                        + String.format("%.2f", quantity) + " " + batch.getUnit());
-                System.out.println("Successfully removed " + String.format("%.2f", quantity)
-                        + " " + batch.getUnit() + " of " + productName + ".");
-                return;
+        List<Batch> matching = warehouse.getBatches().stream()
+                .filter(b -> b.getProductName().equalsIgnoreCase(productName))
+                .sorted(Comparator.comparing(Batch::getExpiryDate))
+                .collect(Collectors.toList());
+
+        if (matching.isEmpty()) {
+            System.out.println("Product not found: " + productName);
+            return;
+        }
+
+        double remaining = quantity;
+        List<Batch> toRemove = new ArrayList<>();
+
+        for (Batch batch : matching) {
+            if (remaining <= 0) break;
+
+            double take = Math.min(batch.getQuantity(), remaining);
+            batch.setQuantity(batch.getQuantity() - take);
+            remaining -= take;
+
+            System.out.println("Removing from batch [" + batch.getLocation()
+                    + ", expiry: " + batch.getExpiryDate() + "]: "
+                    + String.format("%.2f", take) + " " + batch.getUnit());
+
+            if (batch.getQuantity() <= 0) {
+                toRemove.add(batch);
             }
         }
 
-        System.out.println("Product not found: " + productName);
+        warehouse.getBatches().removeAll(toRemove);
+
+        System.out.println("Successfully removed " + String.format("%.2f", quantity)
+                + " " + matching.get(0).getUnit() + " of " + productName + ".");
     }
 }
