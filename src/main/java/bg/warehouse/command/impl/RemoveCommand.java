@@ -2,11 +2,12 @@ package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.model.Batch;
-import bg.warehouse.model.LogEntry;
+import bg.warehouse.model.LogAction;
 import bg.warehouse.model.Warehouse;
+import bg.warehouse.service.LogHelper;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.Constants;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -20,7 +21,7 @@ public class RemoveCommand implements Command {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println("No file is currently open. Use 'open <file>' first.");
+            System.out.println(Constants.NO_FILE_OPEN);
             return;
         }
 
@@ -89,10 +90,7 @@ public class RemoveCommand implements Command {
                     + ", expiry: " + batch.getExpiryDate() + "]: "
                     + String.format("%.2f", take) + " " + batch.getUnit());
 
-            LogEntry logEntry = new LogEntry(
-                    LocalDateTime.now(), "REMOVE", productName, take,
-                    batch.getLocation().toString());
-            warehouse.getLogEntries().add(logEntry);
+            LogHelper.log(warehouse, LogAction.REMOVE, productName, take, batch.getLocation());
 
             if (batch.getQuantity() <= 0) {
                 toRemove.add(batch);
