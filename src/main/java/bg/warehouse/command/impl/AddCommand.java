@@ -3,6 +3,7 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.model.*;
 import bg.warehouse.service.LocationAllocator;
+import bg.warehouse.service.LogHelper;
 import bg.warehouse.session.WarehouseSession;
 
 import java.time.LocalDate;
@@ -83,10 +84,7 @@ public class AddCommand implements Command {
                 existing.setQuantity(existing.getQuantity() + quantity);
                 System.out.println("Merged with existing batch at location " + existing.getLocation() + ".");
 
-                LogEntry logEntry = new LogEntry(
-                        java.time.LocalDateTime.now(), "ADD", name, quantity,
-                        existing.getLocation().toString());
-                warehouse.getLogEntries().add(logEntry);
+                LogHelper.log(warehouse, LogAction.ADD, name, quantity, existing.getLocation());
                 return;
             }
         }
@@ -111,10 +109,7 @@ public class AddCommand implements Command {
         Batch batch = product.toBatch(location);
         warehouse.getBatches().add(batch);
 
-        LogEntry logEntry = new LogEntry(
-                java.time.LocalDateTime.now(), "ADD", name, quantity,
-                location.toString());
-        warehouse.getLogEntries().add(logEntry);
+        LogHelper.log(warehouse, LogAction.ADD, name, quantity, location);
 
         System.out.println("Product added at location " + location + ".");
     }
