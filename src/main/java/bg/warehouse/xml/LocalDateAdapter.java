@@ -1,19 +1,17 @@
 package bg.warehouse.xml;
 
+import bg.warehouse.util.Constants;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
-
-    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     public LocalDate unmarshal(String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
-        return LocalDate.parse(value, FORMAT);
+        return LocalDate.parse(value, Constants.DATE_FORMAT);
     }
 
     @Override
@@ -21,6 +19,6 @@ public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
         if (date == null) {
             return null;
         }
-        return date.format(FORMAT);
+        return date.format(Constants.DATE_FORMAT);
     }
 }
