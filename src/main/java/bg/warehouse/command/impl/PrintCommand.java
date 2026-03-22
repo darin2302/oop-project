@@ -3,6 +3,7 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.model.Batch;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.Constants;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class PrintCommand implements Command {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println("No file is currently open. Use 'open <file>' first.");
+            System.out.println(Constants.NO_FILE_OPEN);
             return;
         }
 
