@@ -3,6 +3,7 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.FileUtils;
 import bg.warehouse.xml.XmlFileHandler;
 
 import java.util.Scanner;
@@ -29,14 +30,7 @@ public class OpenCommand implements Command {
             Warehouse warehouse = xmlHandler.load(filePath);
             WarehouseSession.getInstance().setWarehouse(warehouse);
             WarehouseSession.getInstance().setFilePath(filePath);
-
-            String fileName = filePath.contains("\\")
-                    ? filePath.substring(filePath.lastIndexOf('\\') + 1)
-                    : filePath.contains("/")
-                    ? filePath.substring(filePath.lastIndexOf('/') + 1)
-                    : filePath;
-
-            System.out.println("Successfully opened " + fileName);
+            System.out.println("Successfully opened " + FileUtils.getFileName(filePath));
         } catch (Exception e) {
             System.out.println("Error opening file: " + e.getMessage());
         }

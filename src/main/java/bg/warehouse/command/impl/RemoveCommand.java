@@ -6,6 +6,7 @@ import bg.warehouse.model.LogAction;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.service.LogHelper;
 import bg.warehouse.session.WarehouseSession;
+import bg.warehouse.util.Constants;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,7 +21,7 @@ public class RemoveCommand implements Command {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println("No file is currently open. Use 'open <file>' first.");
+            System.out.println(Constants.NO_FILE_OPEN);
             return;
         }
 
