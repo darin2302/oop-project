@@ -20,6 +20,7 @@ public class CommandFactory {
         commands.put("add", new AddCommand());
         commands.put("remove", new RemoveCommand());
         commands.put("log", new LogCommand());
+        commands.put("clean", new CleanCommand());
         commands.put("help", new HelpCommand());
         commands.put("exit", new ExitCommand());
     }
