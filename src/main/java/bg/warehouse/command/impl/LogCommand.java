@@ -43,7 +43,7 @@ public class LogCommand implements Command {
         boolean found = false;
         for (LogEntry entry : entries) {
             LocalDate entryDate = entry.getTimestamp().toLocalDate();
-            if (entryDate.isAfter(from) && entryDate.isBefore(to)) {
+            if (!entryDate.isBefore(from) && !entryDate.isAfter(to)) {
                 System.out.printf("[%s] %-6s %-15s %8.2f @ %s%n",
                         entry.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                         entry.getAction(),
