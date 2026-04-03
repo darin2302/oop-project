@@ -10,8 +10,10 @@ import bg.warehouse.util.Constants;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class CleanCommand implements Command {
 
@@ -59,5 +61,38 @@ public class CleanCommand implements Command {
 
         warehouse.getBatches().removeAll(expired);
         System.out.println("Removed " + expired.size() + " expired batch(es).");
+
+        // loss calculation
+        Set<String> productNames = new LinkedHashSet<>();
+        for (Batch batch : expired) {
+            productNames.add(batch.getProductName());
+        }
+
+        double totalLoss = 0;
+        for (String name : productNames) {
+            System.out.print("Enter price per unit for " + name + " (or press Enter to skip): ");
+            String priceStr = scanner.nextLine().trim();
+            if (priceStr.isEmpty()) {
+                continue;
+            }
+            try {
+                double price = Double.parseDouble(priceStr);
+                double productQty = 0;
+                for (Batch batch : expired) {
+                    if (batch.getProductName().equals(name)) {
+                        productQty += batch.getQuantity();
+                    }
+                }
+                double loss = productQty * price;
+                totalLoss += loss;
+                System.out.printf("  Loss for %s: %.2f%n", name, loss);
+            } catch (NumberFormatException e) {
+                System.out.println("  Invalid price, skipping " + name);
+            }
+        }
+
+        if (totalLoss > 0) {
+            System.out.printf("Total loss: %.2f%n", totalLoss);
+        }
     }
 }
