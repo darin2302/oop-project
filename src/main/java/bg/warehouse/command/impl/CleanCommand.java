@@ -2,7 +2,9 @@ package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.model.Batch;
+import bg.warehouse.model.LogAction;
 import bg.warehouse.model.Warehouse;
+import bg.warehouse.service.LogHelper;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
@@ -25,9 +27,11 @@ public class CleanCommand implements Command {
         Warehouse warehouse = session.getWarehouse();
         LocalDate today = LocalDate.now();
 
+        LocalDate threshold = today.plusDays(Constants.EXPIRY_WARNING_DAYS);
+
         List<Batch> expired = new ArrayList<>();
         for (Batch batch : warehouse.getBatches()) {
-            if (!batch.getExpiryDate().isAfter(today)) {
+            if (!batch.getExpiryDate().isAfter(threshold)) {
                 expired.add(batch);
             }
         }
@@ -46,6 +50,11 @@ public class CleanCommand implements Command {
                     batch.getLocation(),
                     batch.getQuantity(),
                     batch.getExpiryDate());
+        }
+
+        for (Batch batch : expired) {
+            LogHelper.log(warehouse, LogAction.REMOVE, batch.getProductName(),
+                    batch.getQuantity(), batch.getLocation());
         }
 
         warehouse.getBatches().removeAll(expired);
