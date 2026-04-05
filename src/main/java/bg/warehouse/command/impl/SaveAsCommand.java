@@ -10,10 +10,11 @@ import bg.warehouse.xml.XmlFileHandler;
 public class SaveAsCommand implements Command {
 
     private final ConsoleIO io;
-    private final XmlFileHandler xmlHandler = new XmlFileHandler();
+    private final XmlFileHandler xmlHandler;
 
-    public SaveAsCommand(ConsoleIO io) {
+    public SaveAsCommand(ConsoleIO io, XmlFileHandler xmlHandler) {
         this.io = io;
+        this.xmlHandler = xmlHandler;
     }
 
     @Override

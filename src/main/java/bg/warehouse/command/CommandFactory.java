@@ -21,7 +21,7 @@ public class CommandFactory {
         commands.put("open", new OpenCommand(io, xmlHandler));
         commands.put("close", new CloseCommand(io));
         commands.put("save", new SaveCommand(io, xmlHandler));
-        commands.put("save as", new SaveAsCommand(io));
+        commands.put("save as", new SaveAsCommand(io, xmlHandler));
         commands.put("print", new PrintCommand(io));
         commands.put("add", new AddCommand(io, locationAllocator));
         commands.put("remove", new RemoveCommand(io));
