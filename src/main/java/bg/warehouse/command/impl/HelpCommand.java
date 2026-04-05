@@ -1,13 +1,18 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
-
-import java.util.Scanner;
+import bg.warehouse.io.ConsoleIO;
 
 public class HelpCommand implements Command {
 
+    private final ConsoleIO io;
+
+    public HelpCommand(ConsoleIO io) {
+        this.io = io;
+    }
+
     @Override
-    public void execute(String[] args, Scanner scanner) {
+    public void execute(String[] args) {
         System.out.println("The following commands are supported:");
         System.out.println("  open <file>          opens <file>");
         System.out.println("  close                closes currently opened file");

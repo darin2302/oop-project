@@ -2,17 +2,19 @@ package bg.warehouse.cli;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.command.CommandFactory;
+import bg.warehouse.io.ConsoleIO;
+import bg.warehouse.io.SystemConsoleIO;
 
 import java.util.Scanner;
 
 public class CommandLineInterface {
 
     private final CommandFactory commandFactory;
-    private final Scanner scanner;
+    private final ConsoleIO io;
 
     public CommandLineInterface() {
-        this.commandFactory = new CommandFactory();
-        this.scanner = new Scanner(System.in);
+        this.io = new SystemConsoleIO(new Scanner(System.in));
+        this.commandFactory = new CommandFactory(io);
     }
 
     public CommandFactory getCommandFactory() {
@@ -20,12 +22,12 @@ public class CommandLineInterface {
     }
 
     public void run() {
-        System.out.println("Warehouse Management System");
-        System.out.println("Type 'help' for a list of commands.");
+        io.println("Warehouse Management System");
+        io.println("Type 'help' for a list of commands.");
 
         while (true) {
-            System.out.print("> ");
-            String input = scanner.nextLine().trim();
+            io.print("> ");
+            String input = io.readLine();
 
             if (input.isEmpty()) {
                 continue;
@@ -41,11 +43,11 @@ public class CommandLineInterface {
             Command command = commandFactory.getCommand(commandName);
 
             if (command == null) {
-                System.out.println("Unknown command: " + tokens[0] + ". Type 'help' for a list of commands.");
+                io.println("Unknown command: " + tokens[0] + ". Type 'help' for a list of commands.");
                 continue;
             }
 
-            command.execute(tokens, scanner);
+            command.execute(tokens);
         }
     }
 }
