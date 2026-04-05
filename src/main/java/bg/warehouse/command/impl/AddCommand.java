@@ -1,6 +1,7 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
+import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.*;
 import bg.warehouse.service.LocationAllocator;
 import bg.warehouse.service.LogHelper;
@@ -10,70 +11,82 @@ import bg.warehouse.util.Constants;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
-import java.util.Scanner;
 
 public class AddCommand implements Command {
 
-    private final LocationAllocator locationAllocator = new LocationAllocator();
+    private final ConsoleIO io;
+    private final LocationAllocator locationAllocator;
+
+    public AddCommand(ConsoleIO io, LocationAllocator locationAllocator) {
+        this.io = io;
+        this.locationAllocator = locationAllocator;
+    }
 
     @Override
-    public void execute(String[] args, Scanner scanner) {
+    public void execute(String[] args) {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println(Constants.NO_FILE_OPEN);
+            io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
-        String name = prompt(scanner, "Product name: ");
+        io.print("Product name: ");
+        String name = io.readLine();
         if (name.isBlank()) {
-            System.out.println("Product name cannot be empty.");
+            io.println("Product name cannot be empty.");
             return;
         }
 
-        String manufacturer = prompt(scanner, "Manufacturer: ");
+        io.print("Manufacturer: ");
+        String manufacturer = io.readLine();
 
-        String unitStr = prompt(scanner, "Unit (KILOGRAMS/LITRES): ");
+        io.print("Unit (KILOGRAMS/LITRES): ");
+        String unitStr = io.readLine();
         Unit unit;
         try {
             unit = Unit.fromString(unitStr);
         } catch (IllegalArgumentException e) {
-            System.out.println("Invalid unit. Use KILOGRAMS or LITRES.");
+            io.println("Invalid unit. Use KILOGRAMS or LITRES.");
             return;
         }
 
-        String qtyStr = prompt(scanner, "Quantity: ");
+        io.print("Quantity: ");
+        String qtyStr = io.readLine();
         double quantity;
         try {
             quantity = Double.parseDouble(qtyStr);
             if (quantity <= 0) {
-                System.out.println("Quantity must be positive.");
+                io.println("Quantity must be positive.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Invalid quantity.");
+            io.println("Invalid quantity.");
             return;
         }
 
-        String expiryStr = prompt(scanner, "Expiry date (yyyy-MM-dd): ");
+        io.print("Expiry date (yyyy-MM-dd): ");
+        String expiryStr = io.readLine();
         LocalDate expiryDate;
         try {
             expiryDate = LocalDate.parse(expiryStr, Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
-            System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            io.println("Invalid date format. Use yyyy-MM-dd.");
             return;
         }
 
-        String entryStr = prompt(scanner, "Entry date (yyyy-MM-dd): ");
+        io.print("Entry date (yyyy-MM-dd): ");
+        String entryStr = io.readLine();
         LocalDate entryDate;
         try {
             entryDate = LocalDate.parse(entryStr, Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
-            System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            io.println("Invalid date format. Use yyyy-MM-dd.");
             return;
         }
 
-        String comment = prompt(scanner, "Comment: ");
+        io.print("Comment: ");
+        String comment = io.readLine();
 
         Warehouse warehouse = session.getWarehouse();
 
@@ -81,7 +94,7 @@ public class AddCommand implements Command {
             if (existing.getProductName().equalsIgnoreCase(name)
                     && existing.getExpiryDate().equals(expiryDate)) {
                 existing.setQuantity(existing.getQuantity() + quantity);
-                System.out.println("Merged with existing batch at location " + existing.getLocation() + ".");
+                io.println("Merged with existing batch at location " + existing.getLocation() + ".");
 
                 LogHelper.log(warehouse, LogAction.ADD, name, quantity, existing.getLocation());
                 return;
@@ -90,7 +103,7 @@ public class AddCommand implements Command {
 
         Optional<Location> freeSlot = locationAllocator.findFreeSlot(warehouse);
         if (freeSlot.isEmpty()) {
-            System.out.println("Warehouse is full. Cannot add product.");
+            io.println("Warehouse is full. Cannot add product.");
             return;
         }
 
@@ -110,11 +123,6 @@ public class AddCommand implements Command {
 
         LogHelper.log(warehouse, LogAction.ADD, name, quantity, location);
 
-        System.out.println("Product added at location " + location + ".");
-    }
-
-    private String prompt(Scanner scanner, String message) {
-        System.out.print(message);
-        return scanner.nextLine().trim();
+        io.println("Product added at location " + location + ".");
     }
 }

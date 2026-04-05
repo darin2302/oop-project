@@ -1,29 +1,36 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
+import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.LogEntry;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Scanner;
 
 public class LogCommand implements Command {
 
+    private final ConsoleIO io;
+
+    public LogCommand(ConsoleIO io) {
+        this.io = io;
+    }
+
     @Override
-    public void execute(String[] args, Scanner scanner) {
+    public void execute(String[] args) {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println(Constants.NO_FILE_OPEN);
+            io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
         if (args.length < 3) {
-            System.out.println("Usage: log <from> <to> (dates in yyyy-MM-dd)");
+            io.println("Usage: log <from> <to> (dates in yyyy-MM-dd)");
             return;
         }
 
@@ -33,7 +40,7 @@ public class LogCommand implements Command {
             from = LocalDate.parse(args[1], Constants.DATE_FORMAT);
             to = LocalDate.parse(args[2], Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
-            System.out.println("Invalid date format. Use yyyy-MM-dd.");
+            io.println("Invalid date format. Use yyyy-MM-dd.");
             return;
         }
 
@@ -44,8 +51,8 @@ public class LogCommand implements Command {
         for (LogEntry entry : entries) {
             LocalDate entryDate = entry.getTimestamp().toLocalDate();
             if (!entryDate.isBefore(from) && !entryDate.isAfter(to)) {
-                System.out.printf("[%s] %-6s %-15s %8.2f @ %s%n",
-                        entry.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                io.printf("[%s] %-6s %-15s %8.2f @ %s%n",
+                        entry.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
                         entry.getAction(),
                         entry.getProductName(),
                         entry.getQuantity(),
@@ -55,7 +62,7 @@ public class LogCommand implements Command {
         }
 
         if (!found) {
-            System.out.println("No log entries found in the given date range.");
+            io.println("No log entries found in the given date range.");
         }
     }
 }
