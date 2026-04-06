@@ -1,6 +1,9 @@
 package bg.warehouse.command;
 
 import bg.warehouse.command.impl.*;
+import bg.warehouse.io.ConsoleIO;
+import bg.warehouse.service.LocationAllocator;
+import bg.warehouse.xml.XmlFileHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,18 +14,21 @@ public class CommandFactory {
 
     private final Map<String, Command> commands = new HashMap<>();
 
-    public CommandFactory() {
-        commands.put("open", new OpenCommand());
-        commands.put("close", new CloseCommand());
-        commands.put("save", new SaveCommand());
-        commands.put("save as", new SaveAsCommand());
-        commands.put("print", new PrintCommand());
-        commands.put("add", new AddCommand());
-        commands.put("remove", new RemoveCommand());
-        commands.put("log", new LogCommand());
-        commands.put("clean", new CleanCommand());
-        commands.put("help", new HelpCommand());
-        commands.put("exit", new ExitCommand());
+    public CommandFactory(ConsoleIO io) {
+        XmlFileHandler xmlHandler = new XmlFileHandler();
+        LocationAllocator locationAllocator = new LocationAllocator();
+
+        commands.put("open", new OpenCommand(io, xmlHandler));
+        commands.put("close", new CloseCommand(io));
+        commands.put("save", new SaveCommand(io, xmlHandler));
+        commands.put("save as", new SaveAsCommand(io, xmlHandler));
+        commands.put("print", new PrintCommand(io));
+        commands.put("add", new AddCommand(io, locationAllocator));
+        commands.put("remove", new RemoveCommand(io));
+        commands.put("log", new LogCommand(io));
+        commands.put("clean", new CleanCommand(io));
+        commands.put("help", new HelpCommand(io));
+        commands.put("exit", new ExitCommand(io));
     }
 
     public Command getCommand(String commandName) {
