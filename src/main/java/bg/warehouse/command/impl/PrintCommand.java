@@ -1,6 +1,7 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
+import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
@@ -9,19 +10,25 @@ import java.util.*;
 
 public class PrintCommand implements Command {
 
+    private final ConsoleIO io;
+
+    public PrintCommand(ConsoleIO io) {
+        this.io = io;
+    }
+
     @Override
-    public void execute(String[] args, Scanner scanner) {
+    public void execute(String[] args) {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println(Constants.NO_FILE_OPEN);
+            io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
         List<Batch> batches = session.getWarehouse().getBatches();
 
         if (batches.isEmpty()) {
-            System.out.println("The warehouse is empty.");
+            io.println("The warehouse is empty.");
             return;
         }
 
@@ -36,9 +43,9 @@ public class PrintCommand implements Command {
                 + "-".repeat(12) + "+" + "-".repeat(10) + "+" + "-".repeat(7) + "+"
                 + "-".repeat(10) + "+";
 
-        System.out.println(separator);
-        System.out.println(header);
-        System.out.println(separator);
+        io.println(separator);
+        io.println(header);
+        io.println(separator);
 
         Set<String> printed = new HashSet<>();
         for (Batch b : batches) {
@@ -51,7 +58,7 @@ public class PrintCommand implements Command {
                 printed.add(b.getProductName());
             }
 
-            System.out.printf("| %-18s | %-15s | %-10s | %-8s | %-5s | %8s |%s%n",
+            io.printf("| %-18s | %-15s | %-10s | %-8s | %-5s | %8s |%s%n",
                     b.getProductName(),
                     b.getManufacturer() != null ? b.getManufacturer() : "",
                     b.getExpiryDate(),
@@ -61,6 +68,6 @@ public class PrintCommand implements Command {
                     totalLabel);
         }
 
-        System.out.println(separator);
+        io.println(separator);
     }
 }

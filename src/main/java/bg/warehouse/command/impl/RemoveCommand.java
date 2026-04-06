@@ -1,6 +1,7 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
+import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
 import bg.warehouse.model.LogAction;
 import bg.warehouse.model.Warehouse;
@@ -11,22 +12,27 @@ import bg.warehouse.util.Constants;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class RemoveCommand implements Command {
 
+    private final ConsoleIO io;
+
+    public RemoveCommand(ConsoleIO io) {
+        this.io = io;
+    }
+
     @Override
-    public void execute(String[] args, Scanner scanner) {
+    public void execute(String[] args) {
         WarehouseSession session = WarehouseSession.getInstance();
 
         if (!session.isFileOpen()) {
-            System.out.println(Constants.NO_FILE_OPEN);
+            io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
         if (args.length < 3) {
-            System.out.println("Usage: remove <product_name> <quantity>");
+            io.println("Usage: remove <product_name> <quantity>");
             return;
         }
 
@@ -35,11 +41,11 @@ public class RemoveCommand implements Command {
         try {
             quantity = Double.parseDouble(args[2]);
             if (quantity <= 0) {
-                System.out.println("Quantity must be positive.");
+                io.println("Quantity must be positive.");
                 return;
             }
         } catch (NumberFormatException e) {
-            System.out.println("Invalid quantity.");
+            io.println("Invalid quantity.");
             return;
         }
 
@@ -51,7 +57,7 @@ public class RemoveCommand implements Command {
                 .collect(Collectors.toList());
 
         if (matching.isEmpty()) {
-            System.out.println("Product not found: " + productName);
+            io.println("Product not found: " + productName);
             return;
         }
 
@@ -60,17 +66,17 @@ public class RemoveCommand implements Command {
                 .sum();
 
         if (quantity > totalAvailable) {
-            System.out.println("Not enough stock. Available: " + String.format("%.2f", totalAvailable)
+            io.println("Not enough stock. Available: " + String.format("%.2f", totalAvailable)
                     + " " + matching.get(0).getUnit());
-            System.out.println("Batches:");
+            io.println("Batches:");
             for (Batch b : matching) {
-                System.out.println("  [" + b.getLocation() + ", expiry: " + b.getExpiryDate()
+                io.println("  [" + b.getLocation() + ", expiry: " + b.getExpiryDate()
                         + "]: " + String.format("%.2f", b.getQuantity()) + " " + b.getUnit());
             }
-            System.out.print("Do you want to remove all available stock? (yes/no): ");
-            String answer = scanner.nextLine().trim().toLowerCase();
+            io.print("Do you want to remove all available stock? (yes/no): ");
+            String answer = io.readLine().toLowerCase();
             if (!answer.equals("yes")) {
-                System.out.println("Removal cancelled.");
+                io.println("Removal cancelled.");
                 return;
             }
             quantity = totalAvailable;
@@ -86,7 +92,7 @@ public class RemoveCommand implements Command {
             batch.setQuantity(batch.getQuantity() - take);
             remaining -= take;
 
-            System.out.println("Removing from batch [" + batch.getLocation()
+            io.println("Removing from batch [" + batch.getLocation()
                     + ", expiry: " + batch.getExpiryDate() + "]: "
                     + String.format("%.2f", take) + " " + batch.getUnit());
 
@@ -99,7 +105,7 @@ public class RemoveCommand implements Command {
 
         warehouse.getBatches().removeAll(toRemove);
 
-        System.out.println("Successfully removed " + String.format("%.2f", quantity)
+        io.println("Successfully removed " + String.format("%.2f", quantity)
                 + " " + matching.get(0).getUnit() + " of " + productName + ".");
     }
 }
