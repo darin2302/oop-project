@@ -3,6 +3,8 @@ package bg.warehouse.command;
 import bg.warehouse.command.impl.*;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.service.LocationAllocator;
+import bg.warehouse.service.WarehouseService;
+import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.xml.XmlFileHandler;
 
 import java.util.ArrayList;
@@ -17,16 +19,17 @@ public class CommandFactory {
     public CommandFactory(ConsoleIO io) {
         XmlFileHandler xmlHandler = new XmlFileHandler();
         LocationAllocator locationAllocator = new LocationAllocator();
+        WarehouseService service = new WarehouseService(WarehouseSession.getInstance(), locationAllocator);
 
         commands.put("open", new OpenCommand(io, xmlHandler));
         commands.put("close", new CloseCommand(io));
         commands.put("save", new SaveCommand(io, xmlHandler));
         commands.put("save as", new SaveAsCommand(io, xmlHandler));
         commands.put("print", new PrintCommand(io));
-        commands.put("add", new AddCommand(io, locationAllocator));
-        commands.put("remove", new RemoveCommand(io));
-        commands.put("log", new LogCommand(io));
-        commands.put("clean", new CleanCommand(io));
+        commands.put("add", new AddCommand(io, service));
+        commands.put("remove", new RemoveCommand(io, service));
+        commands.put("log", new LogCommand(io, service));
+        commands.put("clean", new CleanCommand(io, service));
         commands.put("help", new HelpCommand(io));
         commands.put("exit", new ExitCommand(io));
     }

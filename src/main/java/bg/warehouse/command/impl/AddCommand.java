@@ -2,9 +2,11 @@ package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
-import bg.warehouse.model.*;
-import bg.warehouse.service.LocationAllocator;
-import bg.warehouse.service.LogHelper;
+import bg.warehouse.model.Batch;
+import bg.warehouse.model.Location;
+import bg.warehouse.model.Product;
+import bg.warehouse.model.Unit;
+import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
@@ -15,18 +17,16 @@ import java.util.Optional;
 public class AddCommand implements Command {
 
     private final ConsoleIO io;
-    private final LocationAllocator locationAllocator;
+    private final WarehouseService service;
 
-    public AddCommand(ConsoleIO io, LocationAllocator locationAllocator) {
+    public AddCommand(ConsoleIO io, WarehouseService service) {
         this.io = io;
-        this.locationAllocator = locationAllocator;
+        this.service = service;
     }
 
     @Override
     public void execute(String[] args) {
-        WarehouseSession session = WarehouseSession.getInstance();
-
-        if (!session.isFileOpen()) {
+        if (!WarehouseSession.getInstance().isFileOpen()) {
             io.println(Constants.NO_FILE_OPEN);
             return;
         }
@@ -66,20 +66,18 @@ public class AddCommand implements Command {
         }
 
         io.print("Expiry date (yyyy-MM-dd): ");
-        String expiryStr = io.readLine();
         LocalDate expiryDate;
         try {
-            expiryDate = LocalDate.parse(expiryStr, Constants.DATE_FORMAT);
+            expiryDate = LocalDate.parse(io.readLine(), Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
             io.println("Invalid date format. Use yyyy-MM-dd.");
             return;
         }
 
         io.print("Entry date (yyyy-MM-dd): ");
-        String entryStr = io.readLine();
         LocalDate entryDate;
         try {
-            entryDate = LocalDate.parse(entryStr, Constants.DATE_FORMAT);
+            entryDate = LocalDate.parse(io.readLine(), Constants.DATE_FORMAT);
         } catch (DateTimeParseException e) {
             io.println("Invalid date format. Use yyyy-MM-dd.");
             return;
@@ -88,20 +86,14 @@ public class AddCommand implements Command {
         io.print("Comment: ");
         String comment = io.readLine();
 
-        Warehouse warehouse = session.getWarehouse();
-
-        for (Batch existing : warehouse.getBatches()) {
-            if (existing.getProductName().equalsIgnoreCase(name)
-                    && existing.getExpiryDate().equals(expiryDate)) {
-                existing.setQuantity(existing.getQuantity() + quantity);
-                io.println("Merged with existing batch at location " + existing.getLocation() + ".");
-
-                LogHelper.log(warehouse, LogAction.ADD, name, quantity, existing.getLocation());
-                return;
-            }
+        Optional<Batch> existing = service.findBatchByNameAndExpiry(name, expiryDate);
+        if (existing.isPresent()) {
+            service.mergeIntoBatch(existing.get(), quantity);
+            io.println("Merged with existing batch at location " + existing.get().getLocation() + ".");
+            return;
         }
 
-        Optional<Location> freeSlot = locationAllocator.findFreeSlot(warehouse);
+        Optional<Location> freeSlot = service.findFreeSlot();
         if (freeSlot.isEmpty()) {
             io.println("Warehouse is full. Cannot add product.");
             return;
@@ -118,11 +110,7 @@ public class AddCommand implements Command {
                 .build();
 
         Location location = freeSlot.get();
-        Batch batch = product.toBatch(location);
-        warehouse.getBatches().add(batch);
-
-        LogHelper.log(warehouse, LogAction.ADD, name, quantity, location);
-
+        service.addBatch(product, location);
         io.println("Product added at location " + location + ".");
     }
 }
