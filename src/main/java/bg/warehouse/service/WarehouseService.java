@@ -101,6 +101,18 @@ public class WarehouseService {
         warehouse().getBatches().removeAll(batches);
     }
 
+    public List<Batch> getAllBatches() {
+        return warehouse().getBatches();
+    }
+
+    public java.util.Map<String, Double> totalsByProductName() {
+        java.util.Map<String, Double> totals = new java.util.LinkedHashMap<>();
+        for (Batch b : warehouse().getBatches()) {
+            totals.merge(b.getProductName(), b.getQuantity(), Double::sum);
+        }
+        return totals;
+    }
+
     public List<LogEntry> queryLog(LocalDate from, LocalDate to) {
         return warehouse().getLogEntries().stream()
                 .filter(e -> {

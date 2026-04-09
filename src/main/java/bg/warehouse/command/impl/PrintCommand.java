@@ -3,39 +3,40 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
+import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class PrintCommand implements Command {
 
     private final ConsoleIO io;
+    private final WarehouseService service;
 
-    public PrintCommand(ConsoleIO io) {
+    public PrintCommand(ConsoleIO io, WarehouseService service) {
         this.io = io;
+        this.service = service;
     }
 
     @Override
     public void execute(String[] args) {
-        WarehouseSession session = WarehouseSession.getInstance();
-
-        if (!session.isFileOpen()) {
+        if (!WarehouseSession.getInstance().isFileOpen()) {
             io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
-        List<Batch> batches = session.getWarehouse().getBatches();
+        List<Batch> batches = service.getAllBatches();
 
         if (batches.isEmpty()) {
             io.println("The warehouse is empty.");
             return;
         }
 
-        Map<String, Double> totalQuantities = new LinkedHashMap<>();
-        for (Batch b : batches) {
-            totalQuantities.merge(b.getProductName(), b.getQuantity(), Double::sum);
-        }
+        Map<String, Double> totals = service.totalsByProductName();
 
         String header = String.format("| %-18s | %-15s | %-10s | %-8s | %-5s | %-8s |",
                 "Name", "Manufacturer", "Expiry", "Location", "Unit", "Qty");
@@ -51,7 +52,7 @@ public class PrintCommand implements Command {
         for (Batch b : batches) {
             String totalLabel = "";
             if (!printed.contains(b.getProductName())) {
-                double total = totalQuantities.get(b.getProductName());
+                double total = totals.get(b.getProductName());
                 if (total != b.getQuantity()) {
                     totalLabel = " (total: " + String.format("%.2f", total) + ")";
                 }
