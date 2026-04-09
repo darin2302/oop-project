@@ -3,30 +3,26 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
-import bg.warehouse.model.LogAction;
-import bg.warehouse.model.Warehouse;
-import bg.warehouse.service.LogHelper;
+import bg.warehouse.service.RemovalResult;
+import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RemoveCommand implements Command {
 
     private final ConsoleIO io;
+    private final WarehouseService service;
 
-    public RemoveCommand(ConsoleIO io) {
+    public RemoveCommand(ConsoleIO io, WarehouseService service) {
         this.io = io;
+        this.service = service;
     }
 
     @Override
     public void execute(String[] args) {
-        WarehouseSession session = WarehouseSession.getInstance();
-
-        if (!session.isFileOpen()) {
+        if (!WarehouseSession.getInstance().isFileOpen()) {
             io.println(Constants.NO_FILE_OPEN);
             return;
         }
@@ -49,21 +45,13 @@ public class RemoveCommand implements Command {
             return;
         }
 
-        Warehouse warehouse = session.getWarehouse();
-
-        List<Batch> matching = warehouse.getBatches().stream()
-                .filter(b -> b.getProductName().equalsIgnoreCase(productName))
-                .sorted(Comparator.comparing(Batch::getExpiryDate))
-                .collect(Collectors.toList());
-
+        List<Batch> matching = service.findBatchesByName(productName);
         if (matching.isEmpty()) {
             io.println("Product not found: " + productName);
             return;
         }
 
-        double totalAvailable = matching.stream()
-                .mapToDouble(Batch::getQuantity)
-                .sum();
+        double totalAvailable = service.totalQuantity(matching);
 
         if (quantity > totalAvailable) {
             io.println("Not enough stock. Available: " + String.format("%.2f", totalAvailable)
@@ -82,28 +70,12 @@ public class RemoveCommand implements Command {
             quantity = totalAvailable;
         }
 
-        double remaining = quantity;
-        List<Batch> toRemove = new ArrayList<>();
-
-        for (Batch batch : matching) {
-            if (remaining <= 0) break;
-
-            double take = Math.min(batch.getQuantity(), remaining);
-            batch.setQuantity(batch.getQuantity() - take);
-            remaining -= take;
-
-            io.println("Removing from batch [" + batch.getLocation()
-                    + ", expiry: " + batch.getExpiryDate() + "]: "
-                    + String.format("%.2f", take) + " " + batch.getUnit());
-
-            LogHelper.log(warehouse, LogAction.REMOVE, productName, take, batch.getLocation());
-
-            if (batch.getQuantity() <= 0) {
-                toRemove.add(batch);
-            }
+        List<RemovalResult> results = service.drain(matching, productName, quantity);
+        for (RemovalResult r : results) {
+            io.println("Removing from batch [" + r.batch().getLocation()
+                    + ", expiry: " + r.batch().getExpiryDate() + "]: "
+                    + String.format("%.2f", r.amountTaken()) + " " + r.batch().getUnit());
         }
-
-        warehouse.getBatches().removeAll(toRemove);
 
         io.println("Successfully removed " + String.format("%.2f", quantity)
                 + " " + matching.get(0).getUnit() + " of " + productName + ".");
