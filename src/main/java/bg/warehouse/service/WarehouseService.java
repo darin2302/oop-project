@@ -19,10 +19,12 @@ public class WarehouseService {
 
     private final WarehouseSession session;
     private final LocationAllocator allocator;
+    private final RemovalStrategy removalStrategy;
 
-    public WarehouseService(WarehouseSession session, LocationAllocator allocator) {
+    public WarehouseService(WarehouseSession session, LocationAllocator allocator, RemovalStrategy removalStrategy) {
         this.session = session;
         this.allocator = allocator;
+        this.removalStrategy = removalStrategy;
     }
 
     private Warehouse warehouse() {
@@ -64,27 +66,24 @@ public class WarehouseService {
     }
 
     public List<RemovalResult> drain(List<Batch> sortedBatches, String name, double quantity) {
-        List<RemovalResult> results = new ArrayList<>();
+        List<RemovalResult> results = removalStrategy.remove(sortedBatches, name, quantity);
+
         List<Batch> emptied = new ArrayList<>();
-        double remaining = quantity;
-
-        for (Batch batch : sortedBatches) {
-            if (remaining <= 0) break;
-
-            double take = Math.min(batch.getQuantity(), remaining);
-            batch.setQuantity(batch.getQuantity() - take);
-            remaining -= take;
-
-            results.add(new RemovalResult(batch, take));
-            LogHelper.log(warehouse(), LogAction.REMOVE, name, take, batch.getLocation());
-
-            if (batch.getQuantity() <= 0) {
-                emptied.add(batch);
+        for (RemovalResult r : results) {
+            LogHelper.log(warehouse(), LogAction.REMOVE, name, r.amountTaken(), r.batch().getLocation());
+            if (r.batch().getQuantity() <= 0) {
+                emptied.add(r.batch());
             }
         }
 
         warehouse().getBatches().removeAll(emptied);
         return results;
+    }
+
+    private List<Batch> sortByExpiry(List<Batch> batches) {
+        return batches.stream()
+                .sorted(Comparator.comparing(Batch::getExpiryDate))
+                .collect(Collectors.toList());
     }
 
     public List<Batch> findExpiringBy(LocalDate threshold) {
