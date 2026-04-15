@@ -80,12 +80,6 @@ public class WarehouseService {
         return results;
     }
 
-    private List<Batch> sortByExpiry(List<Batch> batches) {
-        return batches.stream()
-                .sorted(Comparator.comparing(Batch::getExpiryDate))
-                .collect(Collectors.toList());
-    }
-
     public List<Batch> findExpiringBy(LocalDate threshold) {
         return warehouse().getBatches().stream()
                 .filter(b -> !b.getExpiryDate().isAfter(threshold))
