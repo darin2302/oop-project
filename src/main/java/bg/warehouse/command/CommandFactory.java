@@ -2,6 +2,7 @@ package bg.warehouse.command;
 
 import bg.warehouse.command.impl.*;
 import bg.warehouse.io.ConsoleIO;
+import bg.warehouse.observer.AuditLogger;
 import bg.warehouse.service.ExpiryFirstRemovalStrategy;
 import bg.warehouse.service.LocationAllocator;
 import bg.warehouse.service.RemovalStrategy;
@@ -23,6 +24,7 @@ public class CommandFactory {
         LocationAllocator locationAllocator = new LocationAllocator();
         RemovalStrategy strategy = new ExpiryFirstRemovalStrategy();
         WarehouseService service = new WarehouseService(WarehouseSession.getInstance(), locationAllocator, strategy);
+        service.addListener(new AuditLogger(WarehouseSession.getInstance()));
 
         commands.put("open", new OpenCommand(io, xmlHandler));
         commands.put("close", new CloseCommand(io));

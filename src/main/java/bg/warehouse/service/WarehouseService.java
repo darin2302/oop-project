@@ -1,11 +1,11 @@
 package bg.warehouse.service;
 
 import bg.warehouse.model.Batch;
-import bg.warehouse.model.LogAction;
 import bg.warehouse.model.LogEntry;
 import bg.warehouse.model.Location;
 import bg.warehouse.model.Product;
 import bg.warehouse.model.Warehouse;
+import bg.warehouse.observer.WarehouseEventListener;
 import bg.warehouse.session.WarehouseSession;
 
 import java.time.LocalDate;
@@ -27,6 +27,28 @@ public class WarehouseService {
         this.removalStrategy = removalStrategy;
     }
 
+    private final List<WarehouseEventListener> listeners = new ArrayList<>();
+
+    public void addListener(WarehouseEventListener l) {
+        listeners.add(l);
+    }
+
+    public void removeListener(WarehouseEventListener l) {
+        listeners.remove(l);
+    }
+
+    private void fireAdded(String name, double qty, Location loc) {
+        for (WarehouseEventListener l : listeners) {
+            l.onProductAdded(name, qty, loc);
+        }
+    }
+
+    private void fireRemoved(String name, double qty, Location loc) {
+        for (WarehouseEventListener l : listeners) {
+            l.onProductRemoved(name, qty, loc);
+        }
+    }
+
     private Warehouse warehouse() {
         return session.getWarehouse();
     }
@@ -45,13 +67,13 @@ public class WarehouseService {
     public Batch addBatch(Product product, Location location) {
         Batch batch = product.toBatch(location);
         warehouse().getBatches().add(batch);
-        LogHelper.log(warehouse(), LogAction.ADD, product.getName(), product.getQuantity(), location);
+        fireAdded(product.getName(), product.getQuantity(), location);
         return batch;
     }
 
     public void mergeIntoBatch(Batch existing, double quantity) {
         existing.setQuantity(existing.getQuantity() + quantity);
-        LogHelper.log(warehouse(), LogAction.ADD, existing.getProductName(), quantity, existing.getLocation());
+        fireAdded(existing.getProductName(), quantity, existing.getLocation());
     }
 
     public List<Batch> findBatchesByName(String name) {
@@ -70,7 +92,7 @@ public class WarehouseService {
 
         List<Batch> emptied = new ArrayList<>();
         for (RemovalResult r : results) {
-            LogHelper.log(warehouse(), LogAction.REMOVE, name, r.amountTaken(), r.batch().getLocation());
+            fireRemoved(name, r.amountTaken(), r.batch().getLocation());
             if (r.batch().getQuantity() <= 0) {
                 emptied.add(r.batch());
             }
@@ -88,8 +110,7 @@ public class WarehouseService {
 
     public void removeAndLog(List<Batch> batches) {
         for (Batch batch : batches) {
-            LogHelper.log(warehouse(), LogAction.REMOVE, batch.getProductName(),
-                    batch.getQuantity(), batch.getLocation());
+            fireRemoved(batch.getProductName(), batch.getQuantity(), batch.getLocation());
         }
         warehouse().getBatches().removeAll(batches);
     }
