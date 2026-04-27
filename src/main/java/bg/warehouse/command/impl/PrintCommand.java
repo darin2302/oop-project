@@ -5,7 +5,6 @@ import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
 import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
-import bg.warehouse.util.Constants;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,10 +23,7 @@ public class PrintCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (!WarehouseSession.getInstance().isFileOpen()) {
-            io.println(Constants.NO_FILE_OPEN);
-            return;
-        }
+        WarehouseSession.getInstance().requireOpen();
 
         List<Batch> batches = service.getAllBatches();
 

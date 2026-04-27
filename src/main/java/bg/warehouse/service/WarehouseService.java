@@ -5,6 +5,8 @@ import bg.warehouse.model.LogEntry;
 import bg.warehouse.model.Location;
 import bg.warehouse.model.Product;
 import bg.warehouse.model.Warehouse;
+import bg.warehouse.exception.InvalidQuantityException;
+import bg.warehouse.exception.ProductNotFoundException;
 import bg.warehouse.observer.WarehouseEventListener;
 import bg.warehouse.session.WarehouseSession;
 
@@ -83,11 +85,22 @@ public class WarehouseService {
                 .collect(Collectors.toList());
     }
 
+    public List<Batch> requireBatchesByName(String name) {
+        List<Batch> matches = findBatchesByName(name);
+        if (matches.isEmpty()) {
+            throw new ProductNotFoundException(name);
+        }
+        return matches;
+    }
+
     public double totalQuantity(List<Batch> batches) {
         return batches.stream().mapToDouble(Batch::getQuantity).sum();
     }
 
     public List<RemovalResult> drain(List<Batch> sortedBatches, String name, double quantity) {
+        if (quantity <= 0 || Double.isNaN(quantity) || Double.isInfinite(quantity)) {
+            throw new InvalidQuantityException("Quantity must be positive.");
+        }
         List<RemovalResult> results = removalStrategy.remove(sortedBatches, name, quantity);
 
         List<Batch> emptied = new ArrayList<>();

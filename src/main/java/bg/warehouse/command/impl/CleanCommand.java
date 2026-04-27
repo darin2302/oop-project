@@ -24,10 +24,7 @@ public class CleanCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (!WarehouseSession.getInstance().isFileOpen()) {
-            io.println(Constants.NO_FILE_OPEN);
-            return;
-        }
+        WarehouseSession.getInstance().requireOpen();
 
         LocalDate threshold = LocalDate.now().plusDays(Constants.EXPIRY_WARNING_DAYS);
         List<Batch> expired = service.findExpiringBy(threshold);

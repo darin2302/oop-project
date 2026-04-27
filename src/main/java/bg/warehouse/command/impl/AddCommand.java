@@ -26,10 +26,7 @@ public class AddCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (!WarehouseSession.getInstance().isFileOpen()) {
-            io.println(Constants.NO_FILE_OPEN);
-            return;
-        }
+        WarehouseSession.getInstance().requireOpen();
 
         io.print("Product name: ");
         String name = io.readLine();
@@ -56,10 +53,6 @@ public class AddCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(qtyStr);
-            if (quantity <= 0) {
-                io.println("Quantity must be positive.");
-                return;
-            }
         } catch (NumberFormatException e) {
             io.println("Invalid quantity.");
             return;
