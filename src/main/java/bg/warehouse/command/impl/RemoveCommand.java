@@ -32,10 +32,6 @@ public class RemoveCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(args[2]);
-            if (quantity <= 0) {
-                io.println("Quantity must be positive.");
-                return;
-            }
         } catch (NumberFormatException e) {
             io.println("Invalid quantity.");
             return;
