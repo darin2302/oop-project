@@ -1,5 +1,6 @@
 package bg.warehouse.session;
 
+import bg.warehouse.exception.NoFileOpenException;
 import bg.warehouse.model.Warehouse;
 
 public class WarehouseSession {
@@ -21,6 +22,12 @@ public class WarehouseSession {
 
     public boolean isFileOpen() {
         return warehouse != null && filePath != null;
+    }
+
+    public void requireOpen() {
+        if (!isFileOpen()) {
+            throw new NoFileOpenException();
+        }
     }
 
     public Warehouse getWarehouse() {

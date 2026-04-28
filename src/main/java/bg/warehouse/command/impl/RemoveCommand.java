@@ -6,7 +6,6 @@ import bg.warehouse.model.Batch;
 import bg.warehouse.service.RemovalResult;
 import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
-import bg.warehouse.util.Constants;
 
 import java.util.List;
 
@@ -22,10 +21,7 @@ public class RemoveCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (!WarehouseSession.getInstance().isFileOpen()) {
-            io.println(Constants.NO_FILE_OPEN);
-            return;
-        }
+        WarehouseSession.getInstance().requireOpen();
 
         if (args.length < 3) {
             io.println("Usage: remove <product_name> <quantity>");
@@ -36,20 +32,12 @@ public class RemoveCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(args[2]);
-            if (quantity <= 0) {
-                io.println("Quantity must be positive.");
-                return;
-            }
         } catch (NumberFormatException e) {
             io.println("Invalid quantity.");
             return;
         }
 
-        List<Batch> matching = service.findBatchesByName(productName);
-        if (matching.isEmpty()) {
-            io.println("Product not found: " + productName);
-            return;
-        }
+        List<Batch> matching = service.requireBatchesByName(productName);
 
         double totalAvailable = service.totalQuantity(matching);
 

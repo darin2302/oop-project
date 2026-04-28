@@ -24,10 +24,7 @@ public class LogCommand implements Command {
 
     @Override
     public void execute(String[] args) {
-        if (!WarehouseSession.getInstance().isFileOpen()) {
-            io.println(Constants.NO_FILE_OPEN);
-            return;
-        }
+        WarehouseSession.getInstance().requireOpen();
 
         if (args.length < 3) {
             io.println("Usage: log <from> <to> (dates in yyyy-MM-dd)");

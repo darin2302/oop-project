@@ -2,6 +2,9 @@ package bg.warehouse.cli;
 
 import bg.warehouse.command.Command;
 import bg.warehouse.command.CommandFactory;
+import bg.warehouse.exception.InvalidQuantityException;
+import bg.warehouse.exception.NoFileOpenException;
+import bg.warehouse.exception.ProductNotFoundException;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.io.SystemConsoleIO;
 
@@ -47,7 +50,11 @@ public class CommandLineInterface {
                 continue;
             }
 
-            command.execute(tokens);
+            try {
+                command.execute(tokens);
+            } catch (NoFileOpenException | InvalidQuantityException | ProductNotFoundException e) {
+                io.println(e.getMessage());
+            }
         }
     }
 }
