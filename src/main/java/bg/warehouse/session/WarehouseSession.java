@@ -25,7 +25,7 @@ public class WarehouseSession {
     }
 
     public void requireOpen() {
-        if (!isFileOpen()) {
+        if (!isFileOpen() || warehouse == null) {
             throw new NoFileOpenException();
         }
     }

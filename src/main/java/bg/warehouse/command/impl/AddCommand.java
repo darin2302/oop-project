@@ -53,6 +53,10 @@ public class AddCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(qtyStr);
+            if (quantity <= 0 || Double.isNaN(quantity) || Double.isInfinite(quantity)) {
+                io.println("Invalid quantity.");
+                return;
+            }
         } catch (NumberFormatException e) {
             io.println("Invalid quantity.");
             return;
