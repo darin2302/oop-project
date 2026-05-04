@@ -32,6 +32,10 @@ public class RemoveCommand implements Command {
         double quantity;
         try {
             quantity = Double.parseDouble(args[2]);
+            if (quantity <= 0 || Double.isNaN(quantity) || Double.isInfinite(quantity)) {
+                io.println("Invalid quantity.");
+                return;
+            }
         } catch (NumberFormatException e) {
             io.println("Invalid quantity.");
             return;
