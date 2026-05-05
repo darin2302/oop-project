@@ -3,7 +3,7 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.LogEntry;
-import bg.warehouse.model.Warehouse;
+import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
@@ -15,16 +15,16 @@ import java.util.List;
 public class LogCommand implements Command {
 
     private final ConsoleIO io;
+    private final WarehouseService service;
 
-    public LogCommand(ConsoleIO io) {
+    public LogCommand(ConsoleIO io, WarehouseService service) {
         this.io = io;
+        this.service = service;
     }
 
     @Override
     public void execute(String[] args) {
-        WarehouseSession session = WarehouseSession.getInstance();
-
-        if (!session.isFileOpen()) {
+        if (!WarehouseSession.getInstance().isFileOpen()) {
             io.println(Constants.NO_FILE_OPEN);
             return;
         }
@@ -44,25 +44,20 @@ public class LogCommand implements Command {
             return;
         }
 
-        Warehouse warehouse = session.getWarehouse();
-        List<LogEntry> entries = warehouse.getLogEntries();
+        List<LogEntry> entries = service.queryLog(from, to);
 
-        boolean found = false;
-        for (LogEntry entry : entries) {
-            LocalDate entryDate = entry.getTimestamp().toLocalDate();
-            if (!entryDate.isBefore(from) && !entryDate.isAfter(to)) {
-                io.printf("[%s] %-6s %-15s %8.2f @ %s%n",
-                        entry.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                        entry.getAction(),
-                        entry.getProductName(),
-                        entry.getQuantity(),
-                        entry.getLocation());
-                found = true;
-            }
+        if (entries.isEmpty()) {
+            io.println("No log entries found in the given date range.");
+            return;
         }
 
-        if (!found) {
-            io.println("No log entries found in the given date range.");
+        for (LogEntry entry : entries) {
+            io.printf("[%s] %-6s %-15s %8.2f @ %s%n",
+                    entry.getTimestamp().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                    entry.getAction(),
+                    entry.getProductName(),
+                    entry.getQuantity(),
+                    entry.getLocation());
         }
     }
 }

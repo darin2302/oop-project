@@ -3,14 +3,11 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Batch;
-import bg.warehouse.model.LogAction;
-import bg.warehouse.model.Warehouse;
-import bg.warehouse.service.LogHelper;
+import bg.warehouse.service.WarehouseService;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.Constants;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,31 +15,22 @@ import java.util.Set;
 public class CleanCommand implements Command {
 
     private final ConsoleIO io;
+    private final WarehouseService service;
 
-    public CleanCommand(ConsoleIO io) {
+    public CleanCommand(ConsoleIO io, WarehouseService service) {
         this.io = io;
+        this.service = service;
     }
 
     @Override
     public void execute(String[] args) {
-        WarehouseSession session = WarehouseSession.getInstance();
-
-        if (!session.isFileOpen()) {
+        if (!WarehouseSession.getInstance().isFileOpen()) {
             io.println(Constants.NO_FILE_OPEN);
             return;
         }
 
-        Warehouse warehouse = session.getWarehouse();
-        LocalDate today = LocalDate.now();
-
-        LocalDate threshold = today.plusDays(Constants.EXPIRY_WARNING_DAYS);
-
-        List<Batch> expired = new ArrayList<>();
-        for (Batch batch : warehouse.getBatches()) {
-            if (!batch.getExpiryDate().isAfter(threshold)) {
-                expired.add(batch);
-            }
-        }
+        LocalDate threshold = LocalDate.now().plusDays(Constants.EXPIRY_WARNING_DAYS);
+        List<Batch> expired = service.findExpiringBy(threshold);
 
         if (expired.isEmpty()) {
             io.println("Cleaning expired and soon-to-expire products...");
@@ -60,12 +48,7 @@ public class CleanCommand implements Command {
                     batch.getExpiryDate());
         }
 
-        for (Batch batch : expired) {
-            LogHelper.log(warehouse, LogAction.REMOVE, batch.getProductName(),
-                    batch.getQuantity(), batch.getLocation());
-        }
-
-        warehouse.getBatches().removeAll(expired);
+        service.removeAndLog(expired);
         io.println("Removed " + expired.size() + " expired batch(es).");
 
         // loss calculation
