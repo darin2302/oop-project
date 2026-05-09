@@ -9,6 +9,10 @@ import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * JAXB marshal/unmarshal for the warehouse XML file.
+ * Creates an empty warehouse file if the target path does not exist.
+ */
 public class XmlFileHandler {
 
     private final JAXBContext context;

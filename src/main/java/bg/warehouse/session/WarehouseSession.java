@@ -3,6 +3,10 @@ package bg.warehouse.session;
 import bg.warehouse.exception.NoFileOpenException;
 import bg.warehouse.model.Warehouse;
 
+/**
+ * Singleton holding the currently open warehouse and its file path.
+ * Single authority on whether a file is open.
+ */
 public class WarehouseSession {
 
     private static WarehouseSession instance;
