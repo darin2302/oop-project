@@ -8,6 +8,10 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Assigns free slots in the warehouse grid (sections A-E, shelves 1-5, slots 01-10).
+ * Iterates in order; returns the first unoccupied slot.
+ */
 public class LocationAllocator {
 
     private static final String[] SECTIONS = {"A", "B", "C", "D", "E"};

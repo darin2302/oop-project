@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Receiver in the Command pattern. Encapsulates all warehouse business logic
+ * (add, remove, query, clean) and fires events to registered observers.
+ */
 public class WarehouseService {
 
     private final WarehouseSession session;
