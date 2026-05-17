@@ -65,7 +65,7 @@ public class CleanCommand implements Command {
                 double price = Double.parseDouble(priceStr);
                 double productQty = 0;
                 for (Batch batch : expired) {
-                    if (batch.getProductName().equals(name)) {
+                    if (batch.getProductName().equalsIgnoreCase(name)) {
                         productQty += batch.getQuantity();
                     }
                 }

@@ -35,6 +35,7 @@ public class CommandFactory {
         commands.put("remove", new RemoveCommand(io, service));
         commands.put("log", new LogCommand(io, service));
         commands.put("clean", new CleanCommand(io, service));
+        commands.put("loss", new LossCommand(io, service));
         commands.put("help", new HelpCommand(io));
         commands.put("exit", new ExitCommand(io));
     }
