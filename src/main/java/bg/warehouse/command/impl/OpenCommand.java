@@ -1,6 +1,7 @@
 package bg.warehouse.command.impl;
 
 import bg.warehouse.command.Command;
+import bg.warehouse.exception.WarehouseLoadException;
 import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.model.Warehouse;
 import bg.warehouse.session.WarehouseSession;
@@ -31,13 +32,14 @@ public class OpenCommand implements Command {
 
         String filePath = args[1];
 
+        Warehouse warehouse;
         try {
-            Warehouse warehouse = xmlHandler.load(filePath);
-            WarehouseSession.getInstance().setWarehouse(warehouse);
-            WarehouseSession.getInstance().setFilePath(filePath);
-            io.println("Successfully opened " + FileUtils.getFileName(filePath));
+            warehouse = xmlHandler.load(filePath);
         } catch (Exception e) {
-            io.println("Error opening file: " + e.getMessage());
+            throw new WarehouseLoadException("Error opening file: " + e.getMessage(), e);
         }
+        WarehouseSession.getInstance().setWarehouse(warehouse);
+        WarehouseSession.getInstance().setFilePath(filePath);
+        io.println("Successfully opened " + FileUtils.getFileName(filePath));
     }
 }
