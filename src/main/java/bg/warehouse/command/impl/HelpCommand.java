@@ -23,6 +23,7 @@ public class HelpCommand implements Command {
         io.println("  remove <name> <qty>  removes product from the warehouse");
         io.println("  log <from> <to>      shows changes in the given date range");
         io.println("  clean                removes expired and soon-to-expire products");
+        io.println("  loss <p> <price> <from> <to>  shows loss for product in date range");
         io.println("  help                 prints this information");
         io.println("  exit                 exits the program");
     }

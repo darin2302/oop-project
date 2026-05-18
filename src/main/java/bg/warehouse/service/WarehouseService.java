@@ -152,4 +152,16 @@ public class WarehouseService {
                 })
                 .collect(Collectors.toList());
     }
+
+    public double lossInPeriod(String productName, LocalDate from, LocalDate to) {
+        double total = 0;
+        for (LogEntry e : warehouse().getLogEntries()) {
+            LocalDate d = e.getTimestamp().toLocalDate();
+            if (d.isBefore(from) || d.isAfter(to)) continue;
+            if (!"REMOVE".equals(e.getAction())) continue;
+            if (!e.getProductName().equals(productName)) continue;
+            total += e.getQuantity();
+        }
+        return total;
+    }
 }
