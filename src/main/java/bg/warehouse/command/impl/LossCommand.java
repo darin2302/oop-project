@@ -10,6 +10,10 @@ import bg.warehouse.util.Constants;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Reports financial loss for a product over a historical date range,
+ * by summing REMOVE log entries and multiplying by the provided unit price.
+ */
 public class LossCommand implements Command {
 
     private final ConsoleIO io;

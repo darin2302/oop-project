@@ -159,7 +159,7 @@ public class WarehouseService {
             LocalDate d = e.getTimestamp().toLocalDate();
             if (d.isBefore(from) || d.isAfter(to)) continue;
             if (!"REMOVE".equals(e.getAction())) continue;
-            if (!e.getProductName().equals(productName)) continue;
+            if (!e.getProductName().equalsIgnoreCase(productName)) continue;
             total += e.getQuantity();
         }
         return total;
