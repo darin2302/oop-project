@@ -1,0 +1,14 @@
+open demo/work/orig.xml
+add
+Salt
+Mine Co
+KILOGRAMS
+5
+2030-01-01
+2026-05-17
+test
+save as "demo/work/copy with spaces.xml"
+close
+open "demo/work/copy with spaces.xml"
+print
+exit

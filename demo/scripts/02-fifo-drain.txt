@@ -1,0 +1,29 @@
+open demo/work/fifo.xml
+add
+Bread
+Bakery
+KILOGRAMS
+30
+2026-12-01
+2026-05-17
+later expiry
+add
+Bread
+Bakery
+KILOGRAMS
+20
+2026-06-15
+2026-05-17
+mid expiry
+add
+Bread
+Bakery
+KILOGRAMS
+10
+2026-05-25
+2026-05-17
+soonest expiry
+print
+remove Bread 25
+print
+exit

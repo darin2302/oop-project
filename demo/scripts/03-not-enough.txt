@@ -1,0 +1,16 @@
+open demo/work/notenough.xml
+add
+Sugar
+Sweet Co
+KILOGRAMS
+15
+2027-01-01
+2026-05-17
+single batch
+remove Sugar 100
+no
+print
+remove Sugar 100
+yes
+print
+exit

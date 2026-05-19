@@ -1,0 +1,1 @@
+open demo/fixtures/bad.xml

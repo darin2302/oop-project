@@ -1,0 +1,24 @@
+open demo/work/wh.xml
+add
+Flour
+Mill Co
+KILOGRAMS
+50
+2027-06-01
+2026-05-17
+winter batch
+add
+Milk
+Dairy Inc
+LITRES
+20
+2026-08-10
+2026-05-17
+
+print
+save
+close
+open demo/work/wh.xml
+print
+close
+exit
