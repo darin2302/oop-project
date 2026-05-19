@@ -1,0 +1,7 @@
+open demo/work/expiring.xml
+print
+clean
+4.00
+2.50
+print
+exit

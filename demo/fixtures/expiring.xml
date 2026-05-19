@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<warehouse>
+    <batches>
+        <batch>
+            <productName>Yogurt</productName>
+            <manufacturer>Farm</manufacturer>
+            <unit>LITRES</unit>
+            <quantity>8.0</quantity>
+            <expiryDate>2026-05-18</expiryDate>
+            <entryDate>2026-05-10</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>01</slot>
+            </location>
+            <comment>about to expire</comment>
+        </batch>
+        <batch>
+            <productName>Cheese</productName>
+            <manufacturer>Dairy</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>5.0</quantity>
+            <expiryDate>2026-05-15</expiryDate>
+            <entryDate>2026-05-01</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>02</slot>
+            </location>
+            <comment>already expired</comment>
+        </batch>
+        <batch>
+            <productName>Honey</productName>
+            <manufacturer>Bee Co</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>12.0</quantity>
+            <expiryDate>2028-01-01</expiryDate>
+            <entryDate>2026-05-10</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>03</slot>
+            </location>
+            <comment>safe</comment>
+        </batch>
+    </batches>
+    <log/>
+</warehouse>
