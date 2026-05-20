@@ -103,8 +103,23 @@ public class AddCommand implements Command {
             return;
         }
 
+        if (entryDate.isAfter(LocalDate.now())) {
+            io.println("Entry date cannot be in the future.");
+            return;
+        }
+        if (expiryDate.isBefore(entryDate)) {
+            io.println("Expiry date cannot be before entry date.");
+            return;
+        }
+
         io.print("Comment: ");
         String comment = io.readLine();
+
+        // Normalize product name casing: reuse existing batch's casing if present.
+        List<Batch> sameName = service.findBatchesByName(name);
+        if (!sameName.isEmpty()) {
+            name = sameName.get(0).getProductName();
+        }
 
         List<Batch> existing = service.findBatchesByNameAndExpiry(name, expiryDate);
         double effectiveVpu = existing.isEmpty() ? volumePerUnit : existing.get(0).getVolumePerUnit();
