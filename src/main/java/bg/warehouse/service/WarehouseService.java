@@ -66,6 +66,13 @@ public class WarehouseService {
                 .findFirst();
     }
 
+    public List<Batch> findBatchesByNameAndExpiry(String name, LocalDate expiry) {
+        return warehouse().getBatches().stream()
+                .filter(b -> b.getProductName().equalsIgnoreCase(name)
+                        && b.getExpiryDate().equals(expiry))
+                .collect(Collectors.toList());
+    }
+
     public Optional<Location> findFreeSlot() {
         return allocator.findFreeSlot(warehouse());
     }

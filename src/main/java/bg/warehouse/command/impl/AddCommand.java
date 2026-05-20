@@ -12,6 +12,7 @@ import bg.warehouse.util.Constants;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -105,50 +106,49 @@ public class AddCommand implements Command {
         io.print("Comment: ");
         String comment = io.readLine();
 
-        Optional<Batch> existing = service.findBatchByNameAndExpiry(name, expiryDate);
-        if (existing.isPresent()) {
-            Batch e = existing.get();
-            double mergedVolume = (e.getQuantity() + quantity) * e.getVolumePerUnit();
-            if (mergedVolume > Constants.SLOT_CAPACITY_LITERS) {
-                double availableQty = (Constants.SLOT_CAPACITY_LITERS / e.getVolumePerUnit()) - e.getQuantity();
-                io.printf("Merge would exceed slot capacity (%.2fL). Slot %s holds %.2f, max additional: %.2f%n",
-                        Constants.SLOT_CAPACITY_LITERS, e.getLocation(), e.getQuantity(),
-                        Math.max(0, availableQty));
+        List<Batch> existing = service.findBatchesByNameAndExpiry(name, expiryDate);
+        double effectiveVpu = existing.isEmpty() ? volumePerUnit : existing.get(0).getVolumePerUnit();
+        double remaining = quantity;
+
+        // Step 1: top up existing slots (same name + expiry) to capacity
+        for (Batch b : existing) {
+            if (remaining <= 0) break;
+            double slotCapUnits = Constants.SLOT_CAPACITY_LITERS / b.getVolumePerUnit();
+            double free = slotCapUnits - b.getQuantity();
+            if (free <= 0) continue;
+            double take = Math.min(remaining, free);
+            service.mergeIntoBatch(b, take);
+            io.printf("Merged %.2f into existing slot %s (now %.2f of %.2f units).%n",
+                    take, b.getLocation(), b.getQuantity(), slotCapUnits);
+            remaining -= take;
+        }
+
+        // Step 2: spill remainder into new slots
+        while (remaining > 0) {
+            Optional<Location> freeSlot = service.findFreeSlot();
+            if (freeSlot.isEmpty()) {
+                io.printf("Warehouse is full. Unplaced quantity: %.2f%n", remaining);
                 return;
             }
-            service.mergeIntoBatch(e, quantity);
-            io.println("Merged with existing batch at location " + e.getLocation() + ".");
-            return;
+            double maxPerSlot = Constants.SLOT_CAPACITY_LITERS / effectiveVpu;
+            double chunk = Math.min(remaining, maxPerSlot);
+
+            Product product = new Product.Builder()
+                    .name(name)
+                    .manufacturer(manufacturer)
+                    .unit(unit)
+                    .quantity(chunk)
+                    .volumePerUnit(effectiveVpu)
+                    .expiryDate(expiryDate)
+                    .entryDate(entryDate)
+                    .comment(comment)
+                    .build();
+
+            Location loc = freeSlot.get();
+            service.addBatch(product, loc);
+            io.printf("Placed %.2f at new slot %s (occupies %.2fL of %.2fL).%n",
+                    chunk, loc, chunk * effectiveVpu, Constants.SLOT_CAPACITY_LITERS);
+            remaining -= chunk;
         }
-
-        double newVolume = quantity * volumePerUnit;
-        if (newVolume > Constants.SLOT_CAPACITY_LITERS) {
-            double maxQty = Constants.SLOT_CAPACITY_LITERS / volumePerUnit;
-            io.printf("Quantity exceeds slot capacity (%.2fL). At %.2fL/unit, max per slot: %.2f%n",
-                    Constants.SLOT_CAPACITY_LITERS, volumePerUnit, maxQty);
-            return;
-        }
-
-        Optional<Location> freeSlot = service.findFreeSlot();
-        if (freeSlot.isEmpty()) {
-            io.println("Warehouse is full. Cannot add product.");
-            return;
-        }
-
-        Product product = new Product.Builder()
-                .name(name)
-                .manufacturer(manufacturer)
-                .unit(unit)
-                .quantity(quantity)
-                .volumePerUnit(volumePerUnit)
-                .expiryDate(expiryDate)
-                .entryDate(entryDate)
-                .comment(comment)
-                .build();
-
-        Location location = freeSlot.get();
-        service.addBatch(product, location);
-        io.printf("Product added at location %s (occupies %.2fL of %.2fL).%n",
-                location, newVolume, Constants.SLOT_CAPACITY_LITERS);
     }
 }

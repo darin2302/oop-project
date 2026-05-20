@@ -35,11 +35,11 @@ public class PrintCommand implements Command {
 
         Map<String, Double> totals = service.totalsByProductName();
 
-        String header = String.format("| %-18s | %-15s | %-10s | %-8s | %-5s | %-8s |",
-                "Name", "Manufacturer", "Expiry", "Location", "Unit", "Qty");
+        String header = String.format("| %-18s | %-15s | %-10s | %-8s | %-5s | %-8s | %-8s | %-7s |",
+                "Name", "Manufacturer", "Expiry", "Location", "Unit", "Qty", "Vol(L)", "L/unit");
         String separator = "+" + "-".repeat(20) + "+" + "-".repeat(17) + "+"
                 + "-".repeat(12) + "+" + "-".repeat(10) + "+" + "-".repeat(7) + "+"
-                + "-".repeat(10) + "+";
+                + "-".repeat(10) + "+" + "-".repeat(10) + "+" + "-".repeat(9) + "+";
 
         io.println(separator);
         io.println(header);
@@ -56,13 +56,15 @@ public class PrintCommand implements Command {
                 printed.add(b.getProductName());
             }
 
-            io.printf("| %-18s | %-15s | %-10s | %-8s | %-5s | %8s |%s%n",
+            io.printf("| %-18s | %-15s | %-10s | %-8s | %-5s | %8s | %8s | %7s |%s%n",
                     b.getProductName(),
                     b.getManufacturer() != null ? b.getManufacturer() : "",
                     b.getExpiryDate(),
                     b.getLocation(),
                     b.getUnit().getShortName(),
                     String.format("%.2f", b.getQuantity()),
+                    String.format("%.2f", b.getOccupiedVolume()),
+                    String.format("%.2f", b.getVolumePerUnit()),
                     totalLabel);
         }
 
