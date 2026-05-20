@@ -6,6 +6,7 @@ import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.FileUtils;
 import bg.warehouse.xml.XmlFileHandler;
 
+/** Saves the warehouse to a new path and updates the session's current file. */
 public class SaveAsCommand implements Command {
 
     private final ConsoleIO io;

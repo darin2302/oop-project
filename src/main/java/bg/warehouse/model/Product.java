@@ -1,13 +1,20 @@
 package bg.warehouse.model;
 
+import bg.warehouse.util.Constants;
+
 import java.time.LocalDate;
 
+/**
+ * Input description used by {@code add} before placement. Once placed, the data lives on a {@link Batch}.
+ * Constructed exclusively via {@link Builder}.
+ */
 public class Product {
 
     private String name;
     private String manufacturer;
     private Unit unit;
     private double quantity;
+    private double volumePerUnit = Constants.DEFAULT_VOLUME_PER_UNIT;
     private LocalDate expiryDate;
     private LocalDate entryDate;
     private String comment;
@@ -31,6 +38,14 @@ public class Product {
         return quantity;
     }
 
+    public double getVolumePerUnit() {
+        return volumePerUnit > 0 ? volumePerUnit : Constants.DEFAULT_VOLUME_PER_UNIT;
+    }
+
+    public double getOccupiedVolume() {
+        return quantity * getVolumePerUnit();
+    }
+
     public LocalDate getExpiryDate() {
         return expiryDate;
     }
@@ -49,6 +64,7 @@ public class Product {
         batch.setManufacturer(manufacturer);
         batch.setUnit(unit);
         batch.setQuantity(quantity);
+        batch.setVolumePerUnit(getVolumePerUnit());
         batch.setExpiryDate(expiryDate);
         batch.setEntryDate(entryDate);
         batch.setLocation(location);
@@ -77,6 +93,11 @@ public class Product {
 
         public Builder quantity(double quantity) {
             product.quantity = quantity;
+            return this;
+        }
+
+        public Builder volumePerUnit(double volumePerUnit) {
+            product.volumePerUnit = volumePerUnit;
             return this;
         }
 

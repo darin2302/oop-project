@@ -5,6 +5,7 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
 import java.util.Objects;
 
+/** Coordinates of a single slot in the warehouse grid: section letter, shelf number, slot number. */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Location {
 

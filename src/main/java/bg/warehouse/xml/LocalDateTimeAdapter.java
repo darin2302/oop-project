@@ -4,6 +4,7 @@ import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/** JAXB adapter for marshalling {@link LocalDateTime} as ISO yyyy-MM-dd'T'HH:mm:ss strings. */
 public class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
 
     private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    Same product (Bread) across three batches with different expiry dates,
+    spread over different locations. Drives the FIFO removal demo:
+    'remove Bread 25' drains the 2026-05-22 batch fully (10), then takes 15 from 2026-05-28,
+    leaving the 2026-06-05 batch untouched.
+-->
+<warehouse>
+    <batches>
+        <batch>
+            <productName>Bread</productName>
+            <manufacturer>Bakery</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>10.0</quantity>
+            <volumePerUnit>2.0</volumePerUnit>
+            <expiryDate>2026-05-22</expiryDate>
+            <entryDate>2026-05-18</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>01</slot>
+            </location>
+            <comment>oldest</comment>
+        </batch>
+        <batch>
+            <productName>Bread</productName>
+            <manufacturer>Bakery</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>20.0</quantity>
+            <volumePerUnit>2.0</volumePerUnit>
+            <expiryDate>2026-05-28</expiryDate>
+            <entryDate>2026-05-19</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>02</slot>
+            </location>
+            <comment>mid</comment>
+        </batch>
+        <batch>
+            <productName>Bread</productName>
+            <manufacturer>Bakery</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>30.0</quantity>
+            <volumePerUnit>2.0</volumePerUnit>
+            <expiryDate>2026-06-05</expiryDate>
+            <entryDate>2026-05-19</entryDate>
+            <location>
+                <section>B</section>
+                <shelf>2</shelf>
+                <slot>03</slot>
+            </location>
+            <comment>freshest</comment>
+        </batch>
+    </batches>
+    <log/>
+</warehouse>

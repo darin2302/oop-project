@@ -1,5 +1,6 @@
 package bg.warehouse.util;
 
+/** Cross-platform path helpers. */
 public class FileUtils {
 
     public static String getFileName(String filePath) {

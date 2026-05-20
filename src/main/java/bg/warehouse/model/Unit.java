@@ -4,6 +4,7 @@ import jakarta.xml.bind.annotation.XmlEnum;
 import jakarta.xml.bind.annotation.XmlEnumValue;
 import jakarta.xml.bind.annotation.XmlType;
 
+/** Supported measurement units for product quantities. */
 @XmlType(name = "unit")
 @XmlEnum
 public enum Unit {

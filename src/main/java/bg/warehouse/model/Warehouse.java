@@ -4,6 +4,7 @@ import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Root aggregate: the full inventory and the audit log. JAXB root element. */
 @XmlRootElement(name = "warehouse")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Warehouse {

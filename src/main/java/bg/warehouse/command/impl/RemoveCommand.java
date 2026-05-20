@@ -9,6 +9,7 @@ import bg.warehouse.session.WarehouseSession;
 
 import java.util.List;
 
+/** Removes a quantity of a product, draining batches in expiry-ascending order (FIFO). */
 public class RemoveCommand implements Command {
 
     private final ConsoleIO io;

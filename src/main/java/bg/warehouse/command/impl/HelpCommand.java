@@ -3,6 +3,7 @@ package bg.warehouse.command.impl;
 import bg.warehouse.command.Command;
 import bg.warehouse.io.ConsoleIO;
 
+/** Prints the list of available commands and their usage. */
 public class HelpCommand implements Command {
 
     private final ConsoleIO io;

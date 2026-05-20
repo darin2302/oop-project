@@ -14,6 +14,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
+/**
+ * Interactively prompts for product fields, then either merges into an existing
+ * (name + expiry) batch or allocates a fresh slot. Enforces slot volume capacity.
+ */
 public class AddCommand implements Command {
 
     private final ConsoleIO io;
@@ -62,6 +66,24 @@ public class AddCommand implements Command {
             return;
         }
 
+        io.print("Volume per unit in litres (press Enter for " + Constants.DEFAULT_VOLUME_PER_UNIT + "): ");
+        String vpuStr = io.readLine();
+        double volumePerUnit;
+        if (vpuStr.isBlank()) {
+            volumePerUnit = Constants.DEFAULT_VOLUME_PER_UNIT;
+        } else {
+            try {
+                volumePerUnit = Double.parseDouble(vpuStr);
+                if (volumePerUnit <= 0 || Double.isNaN(volumePerUnit) || Double.isInfinite(volumePerUnit)) {
+                    io.println("Invalid volume per unit.");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                io.println("Invalid volume per unit.");
+                return;
+            }
+        }
+
         io.print("Expiry date (yyyy-MM-dd): ");
         LocalDate expiryDate;
         try {
@@ -85,8 +107,25 @@ public class AddCommand implements Command {
 
         Optional<Batch> existing = service.findBatchByNameAndExpiry(name, expiryDate);
         if (existing.isPresent()) {
-            service.mergeIntoBatch(existing.get(), quantity);
-            io.println("Merged with existing batch at location " + existing.get().getLocation() + ".");
+            Batch e = existing.get();
+            double mergedVolume = (e.getQuantity() + quantity) * e.getVolumePerUnit();
+            if (mergedVolume > Constants.SLOT_CAPACITY_LITERS) {
+                double availableQty = (Constants.SLOT_CAPACITY_LITERS / e.getVolumePerUnit()) - e.getQuantity();
+                io.printf("Merge would exceed slot capacity (%.2fL). Slot %s holds %.2f, max additional: %.2f%n",
+                        Constants.SLOT_CAPACITY_LITERS, e.getLocation(), e.getQuantity(),
+                        Math.max(0, availableQty));
+                return;
+            }
+            service.mergeIntoBatch(e, quantity);
+            io.println("Merged with existing batch at location " + e.getLocation() + ".");
+            return;
+        }
+
+        double newVolume = quantity * volumePerUnit;
+        if (newVolume > Constants.SLOT_CAPACITY_LITERS) {
+            double maxQty = Constants.SLOT_CAPACITY_LITERS / volumePerUnit;
+            io.printf("Quantity exceeds slot capacity (%.2fL). At %.2fL/unit, max per slot: %.2f%n",
+                    Constants.SLOT_CAPACITY_LITERS, volumePerUnit, maxQty);
             return;
         }
 
@@ -101,6 +140,7 @@ public class AddCommand implements Command {
                 .manufacturer(manufacturer)
                 .unit(unit)
                 .quantity(quantity)
+                .volumePerUnit(volumePerUnit)
                 .expiryDate(expiryDate)
                 .entryDate(entryDate)
                 .comment(comment)
@@ -108,6 +148,7 @@ public class AddCommand implements Command {
 
         Location location = freeSlot.get();
         service.addBatch(product, location);
-        io.println("Product added at location " + location + ".");
+        io.printf("Product added at location %s (occupies %.2fL of %.2fL).%n",
+                location, newVolume, Constants.SLOT_CAPACITY_LITERS);
     }
 }

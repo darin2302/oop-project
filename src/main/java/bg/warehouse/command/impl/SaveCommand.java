@@ -6,6 +6,7 @@ import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.FileUtils;
 import bg.warehouse.xml.XmlFileHandler;
 
+/** Writes the in-memory warehouse back to its current XML file path. */
 public class SaveCommand implements Command {
 
     private final ConsoleIO io;

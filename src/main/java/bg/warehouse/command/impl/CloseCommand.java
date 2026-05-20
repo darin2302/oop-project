@@ -5,6 +5,7 @@ import bg.warehouse.io.ConsoleIO;
 import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.FileUtils;
 
+/** Clears the session's in-memory state. Unsaved changes are lost. */
 public class CloseCommand implements Command {
 
     private final ConsoleIO io;

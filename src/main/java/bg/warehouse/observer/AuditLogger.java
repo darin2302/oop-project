@@ -7,6 +7,7 @@ import bg.warehouse.session.WarehouseSession;
 
 import java.time.LocalDateTime;
 
+/** Observer that appends a {@link LogEntry} to the warehouse log for every add/remove event. */
 public class AuditLogger implements WarehouseEventListener {
 
     private final WarehouseSession session;

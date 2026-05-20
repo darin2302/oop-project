@@ -4,6 +4,7 @@ import bg.warehouse.util.Constants;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.time.LocalDate;
 
+/** JAXB adapter for marshalling {@link LocalDate} as ISO yyyy-MM-dd strings. */
 public class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
 
     @Override

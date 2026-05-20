@@ -1,5 +1,6 @@
 package bg.warehouse.model;
 
+import bg.warehouse.util.Constants;
 import bg.warehouse.xml.LocalDateAdapter;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
@@ -7,6 +8,10 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDate;
 
+/**
+ * A physical placement of stock: a quantity of one product at one location with a single expiry date.
+ * Identified by (productName, expiryDate). Persisted via JAXB.
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Batch {
 
@@ -20,6 +25,9 @@ public class Batch {
 
     @XmlElement(required = true)
     private double quantity;
+
+    @XmlElement
+    private double volumePerUnit = Constants.DEFAULT_VOLUME_PER_UNIT;
 
     @XmlElement(required = true)
     @XmlJavaTypeAdapter(LocalDateAdapter.class)
@@ -67,6 +75,18 @@ public class Batch {
 
     public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    public double getVolumePerUnit() {
+        return volumePerUnit > 0 ? volumePerUnit : Constants.DEFAULT_VOLUME_PER_UNIT;
+    }
+
+    public void setVolumePerUnit(double volumePerUnit) {
+        this.volumePerUnit = volumePerUnit;
+    }
+
+    public double getOccupiedVolume() {
+        return quantity * getVolumePerUnit();
     }
 
     public LocalDate getExpiryDate() {

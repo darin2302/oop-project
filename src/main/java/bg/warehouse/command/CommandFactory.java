@@ -15,6 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Builds and resolves {@link Command} instances by name. New commands are added via {@link #registerCommand(String, Command)}.
+ * Tokenises raw input so quoted arguments (e.g. paths with spaces) survive parsing.
+ */
 public class CommandFactory {
 
     private final Map<String, Command> commands = new HashMap<>();

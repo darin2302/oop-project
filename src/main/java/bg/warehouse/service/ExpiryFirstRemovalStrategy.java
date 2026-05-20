@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/** FIFO removal strategy: drains batches in expiry-ascending order (soonest first). */
 public class ExpiryFirstRemovalStrategy implements RemovalStrategy {
 
     @Override

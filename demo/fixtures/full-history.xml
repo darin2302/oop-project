@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    Rich log history for `log <from> <to>` and `loss <product> <price> <from> <to>` demos.
+    Spans two months of activity: 5 products, multiple ADD/REMOVE entries.
+    Sample queries:
+      log 2026-04-01 2026-04-30   → only April events
+      loss Bread 1.50 2026-04-01 2026-05-31  → 25 kg × 1.50 = 37.50
+-->
+<warehouse>
+    <batches>
+        <batch>
+            <productName>Flour</productName>
+            <manufacturer>Mill Co</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>30.0</quantity>
+            <volumePerUnit>1.5</volumePerUnit>
+            <expiryDate>2026-10-15</expiryDate>
+            <entryDate>2026-04-01</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>01</slot>
+            </location>
+            <comment>leftover from April delivery</comment>
+        </batch>
+        <batch>
+            <productName>Rice</productName>
+            <manufacturer>Asia Foods</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>40.0</quantity>
+            <volumePerUnit>1.1</volumePerUnit>
+            <expiryDate>2027-03-20</expiryDate>
+            <entryDate>2026-05-05</entryDate>
+            <location>
+                <section>B</section>
+                <shelf>1</shelf>
+                <slot>03</slot>
+            </location>
+            <comment>basmati</comment>
+        </batch>
+    </batches>
+    <log>
+        <entry>
+            <timestamp>2026-04-01T08:30:00</timestamp>
+            <action>ADD</action>
+            <productName>Flour</productName>
+            <quantity>50.0</quantity>
+            <location>A-1-01</location>
+        </entry>
+        <entry>
+            <timestamp>2026-04-03T11:14:00</timestamp>
+            <action>ADD</action>
+            <productName>Bread</productName>
+            <quantity>40.0</quantity>
+            <location>A-2-01</location>
+        </entry>
+        <entry>
+            <timestamp>2026-04-10T15:47:00</timestamp>
+            <action>REMOVE</action>
+            <productName>Bread</productName>
+            <quantity>10.0</quantity>
+            <location>A-2-01</location>
+        </entry>
+        <entry>
+            <timestamp>2026-04-22T09:08:00</timestamp>
+            <action>REMOVE</action>
+            <productName>Flour</productName>
+            <quantity>20.0</quantity>
+            <location>A-1-01</location>
+        </entry>
+        <entry>
+            <timestamp>2026-04-28T16:31:00</timestamp>
+            <action>REMOVE</action>
+            <productName>Bread</productName>
+            <quantity>15.0</quantity>
+            <location>A-2-01</location>
+        </entry>
+        <entry>
+            <timestamp>2026-05-05T10:02:00</timestamp>
+            <action>ADD</action>
+            <productName>Rice</productName>
+            <quantity>40.0</quantity>
+            <location>B-1-03</location>
+        </entry>
+    </log>
+</warehouse>

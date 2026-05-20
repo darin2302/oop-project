@@ -10,6 +10,7 @@ import bg.warehouse.io.SystemConsoleIO;
 
 import java.util.Scanner;
 
+/** REPL loop: reads a line, resolves a {@link Command} via the factory, runs it, catches domain exceptions. */
 public class CommandLineInterface {
 
     private final CommandFactory commandFactory;

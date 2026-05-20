@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+    Demonstrates slot capacity rules:
+    - Flour batch occupies 60.0 KG × 1.5 L/KG = 90.0L out of 100L capacity.
+    - Adding 10 more KG of Flour with same expiry will fit (90 + 15 = 105 > 100 → rejected; 90 + 7.5 = 97.5 → accepted).
+    - Use to demo merge overflow rejection and the helpful "max additional" hint.
+-->
+<warehouse>
+    <batches>
+        <batch>
+            <productName>Flour</productName>
+            <manufacturer>Mill Co</manufacturer>
+            <unit>KILOGRAMS</unit>
+            <quantity>60.0</quantity>
+            <volumePerUnit>1.5</volumePerUnit>
+            <expiryDate>2026-09-01</expiryDate>
+            <entryDate>2026-05-01</entryDate>
+            <location>
+                <section>A</section>
+                <shelf>1</shelf>
+                <slot>01</slot>
+            </location>
+            <comment>slot at 90 percent</comment>
+        </batch>
+    </batches>
+    <log>
+        <entry>
+            <timestamp>2026-05-01T09:15:00</timestamp>
+            <action>ADD</action>
+            <productName>Flour</productName>
+            <quantity>60.0</quantity>
+            <location>A-1-01</location>
+        </entry>
+    </log>
+</warehouse>

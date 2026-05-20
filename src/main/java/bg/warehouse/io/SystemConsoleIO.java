@@ -2,6 +2,7 @@ package bg.warehouse.io;
 
 import java.util.Scanner;
 
+/** Default {@link ConsoleIO} backed by {@code System.out} and a {@link Scanner}. */
 public class SystemConsoleIO implements ConsoleIO {
 
     private final Scanner scanner;

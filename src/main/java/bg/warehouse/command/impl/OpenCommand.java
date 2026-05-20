@@ -8,6 +8,7 @@ import bg.warehouse.session.WarehouseSession;
 import bg.warehouse.util.FileUtils;
 import bg.warehouse.xml.XmlFileHandler;
 
+/** Loads a warehouse XML file into the session, creating an empty one if the path does not exist. */
 public class OpenCommand implements Command {
 
     private final ConsoleIO io;

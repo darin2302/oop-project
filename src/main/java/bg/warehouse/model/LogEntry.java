@@ -7,6 +7,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.LocalDateTime;
 
+/** Audit log row: who/what/when/where for one ADD or REMOVE event. */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LogEntry {
 

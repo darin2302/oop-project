@@ -12,6 +12,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Removes expired and soon-to-expire batches (≤ today + EXPIRY_WARNING_DAYS), then prompts for unit price to compute loss. */
 public class CleanCommand implements Command {
 
     private final ConsoleIO io;
